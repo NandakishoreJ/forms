@@ -1,6 +1,6 @@
 /* =========================================
    STUDENT MANAGEMENT SYSTEM
-   FIREBASE FIRESTORE VERSION
+   FIREBASE FIRESTORE
 ========================================= */
 
 
@@ -78,7 +78,7 @@ const studentsCollection =
 
 
 /* =========================================
-   GET HTML ELEMENTS
+   HTML ELEMENTS
 ========================================= */
 
 const studentForm =
@@ -154,7 +154,7 @@ const cancelButton =
 
 
 /* =========================================
-   STUDENT ARRAY
+   DATA
 ========================================= */
 
 let students = [];
@@ -171,26 +171,32 @@ async function loadStudents() {
     try {
 
         const snapshot =
-            await getDocs(studentsCollection);
+            await getDocs(
+                studentsCollection
+            );
+
 
         students = [];
 
-        snapshot.forEach((documentSnapshot) => {
 
-            students.push({
+        snapshot.forEach(
+            (documentSnapshot) => {
 
-                id:
-                    documentSnapshot.id,
+                students.push({
 
-                ...documentSnapshot.data()
+                    id:
+                        documentSnapshot.id,
 
-            });
+                    ...documentSnapshot.data()
 
-        });
+                });
+
+            }
+        );
 
 
         console.log(
-            "Students loaded from Firebase:",
+            "Students loaded:",
             students
         );
 
@@ -202,12 +208,13 @@ async function loadStudents() {
     catch (error) {
 
         console.error(
-            "Error loading students:",
+            "Firebase loading error:",
             error
         );
 
+
         alert(
-            "Unable to load student data from Firebase."
+            "Unable to load students from Firebase."
         );
 
     }
@@ -221,8 +228,15 @@ async function loadStudents() {
 
 function getInitials(name) {
 
+    if (!name) {
+
+        return "ST";
+
+    }
+
+
     const words =
-        name.trim().split(" ");
+        name.trim().split(/\s+/);
 
 
     if (words.length === 1) {
@@ -235,8 +249,11 @@ function getInitials(name) {
 
 
     return (
+
         words[0][0] +
+
         words[words.length - 1][0]
+
     ).toUpperCase();
 
 }
@@ -249,10 +266,15 @@ function getInitials(name) {
 function escapeHTML(value) {
 
     return String(value || "")
+
         .replace(/&/g, "&amp;")
+
         .replace(/</g, "&lt;")
+
         .replace(/>/g, "&gt;")
+
         .replace(/"/g, "&quot;")
+
         .replace(/'/g, "&#039;");
 
 }
@@ -273,8 +295,16 @@ function updateCourseFilter() {
         ...new Set(
 
             students
-                .map(student => student.course)
-                .filter(course => course)
+
+                .map(
+                    student =>
+                        student.course
+                )
+
+                .filter(
+                    course =>
+                        course
+                )
 
         )
 
@@ -285,26 +315,36 @@ function updateCourseFilter() {
         `<option value="">All Courses</option>`;
 
 
-    courses.forEach(course => {
+    courses.forEach(
+        course => {
 
-        const option =
-            document.createElement("option");
-
-
-        option.value =
-            course;
-
-
-        option.textContent =
-            course;
+            const option =
+                document.createElement(
+                    "option"
+                );
 
 
-        courseFilter.appendChild(option);
+            option.value =
+                course;
 
-    });
+
+            option.textContent =
+                course;
 
 
-    if (courses.includes(selectedCourse)) {
+            courseFilter.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        courses.includes(
+            selectedCourse
+        )
+    ) {
 
         courseFilter.value =
             selectedCourse;
@@ -315,7 +355,7 @@ function updateCourseFilter() {
 
 
 /* =========================================
-   GET FILTERED STUDENTS
+   FILTER STUDENTS
 ========================================= */
 
 function getFilteredStudents() {
@@ -330,52 +370,65 @@ function getFilteredStudents() {
         courseFilter.value;
 
 
-    return students.filter(student => {
+    return students.filter(
+        student => {
+
+            const matchesSearch =
+
+                search === "" ||
+
+                String(
+                    student.name || ""
+                )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                String(
+                    student.rollNumber || ""
+                )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                String(
+                    student.email || ""
+                )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                String(
+                    student.course || ""
+                )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                String(
+                    student.year || ""
+                )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                String(
+                    student.phone || ""
+                )
+                    .toLowerCase()
+                    .includes(search);
 
 
-        const matchesSearch =
+            const matchesCourse =
 
-            search === "" ||
+                selectedCourse === "" ||
 
-            String(student.name || "")
-                .toLowerCase()
-                .includes(search) ||
-
-            String(student.rollNumber || "")
-                .toLowerCase()
-                .includes(search) ||
-
-            String(student.email || "")
-                .toLowerCase()
-                .includes(search) ||
-
-            String(student.course || "")
-                .toLowerCase()
-                .includes(search) ||
-
-            String(student.year || "")
-                .toLowerCase()
-                .includes(search) ||
-
-            String(student.phone || "")
-                .toLowerCase()
-                .includes(search);
+                student.course ===
+                selectedCourse;
 
 
-        const matchesCourse =
+            return (
+                matchesSearch &&
+                matchesCourse
+            );
 
-            selectedCourse === "" ||
-
-            student.course ===
-            selectedCourse;
-
-
-        return (
-            matchesSearch &&
-            matchesCourse
-        );
-
-    });
+        }
+    );
 
 }
 
@@ -393,11 +446,12 @@ function displayStudents() {
         getFilteredStudents();
 
 
-    studentTable.innerHTML = "";
+    studentTable.innerHTML =
+        "";
 
 
     /* =====================================
-       UPDATE STATISTICS
+       STATISTICS
     ===================================== */
 
     totalStudents.textContent =
@@ -406,9 +460,19 @@ function displayStudents() {
 
     const courses =
         new Set(
+
             students
-                .map(student => student.course)
-                .filter(course => course)
+
+                .map(
+                    student =>
+                        student.course
+                )
+
+                .filter(
+                    course =>
+                        course
+                )
+
         );
 
 
@@ -421,7 +485,10 @@ function displayStudents() {
 
 
     showingText.textContent =
-        `Showing ${filtered.length} student${
+
+        `Showing ${
+            filtered.length
+        } student${
             filtered.length === 1
                 ? ""
                 : "s"
@@ -432,7 +499,9 @@ function displayStudents() {
        EMPTY STATE
     ===================================== */
 
-    if (filtered.length === 0) {
+    if (
+        filtered.length === 0
+    ) {
 
         emptyMessage.style.display =
             "block";
@@ -448,128 +517,132 @@ function displayStudents() {
 
 
     /* =====================================
-       CREATE TABLE ROWS
+       TABLE ROWS
     ===================================== */
 
-    filtered.forEach(student => {
+    filtered.forEach(
+        student => {
 
-        const row =
-            document.createElement("tr");
+            const row =
+                document.createElement(
+                    "tr"
+                );
 
 
-        row.innerHTML = `
+            row.innerHTML = `
 
-            <td>
+                <td>
 
-                <div class="student">
+                    <div class="student">
 
-                    <div class="student-avatar">
+                        <div class="student-avatar">
 
-                        ${escapeHTML(
-                            getInitials(
+                            ${escapeHTML(
+                                getInitials(
+                                    student.name
+                                )
+                            )}
+
+                        </div>
+
+                        <div class="student-name">
+
+                            ${escapeHTML(
                                 student.name
-                            )
-                        )}
+                            )}
+
+                        </div>
 
                     </div>
 
-                    <div class="student-name">
-
-                        ${escapeHTML(
-                            student.name
-                        )}
-
-                    </div>
-
-                </div>
-
-            </td>
+                </td>
 
 
-            <td>
-
-                ${escapeHTML(
-                    student.rollNumber
-                )}
-
-            </td>
-
-
-            <td>
-
-                <span class="course-badge">
+                <td>
 
                     ${escapeHTML(
-                        student.course
+                        student.rollNumber
                     )}
 
-                </span>
-
-            </td>
+                </td>
 
 
-            <td>
+                <td>
 
-                ${escapeHTML(
-                    student.year
-                )}
+                    <span class="course-badge">
 
-            </td>
+                        ${escapeHTML(
+                            student.course
+                        )}
 
+                    </span>
 
-            <td>
-
-                ${escapeHTML(
-                    student.email
-                )}
-
-            </td>
+                </td>
 
 
-            <td>
+                <td>
 
-                ${escapeHTML(
-                    student.phone || "-"
-                )}
+                    ${escapeHTML(
+                        student.year
+                    )}
 
-            </td>
+                    Year
 
-
-            <td>
-
-                <div class="actions">
-
-                    <button
-                        class="action-btn"
-                        onclick="editStudent('${student.id}')"
-                        title="Edit"
-                    >
-
-                        ✏️
-
-                    </button>
+                </td>
 
 
-                    <button
-                        class="action-btn delete-btn"
-                        onclick="deleteStudent('${student.id}')"
-                        title="Delete"
-                    >
+                <td>
 
-                        🗑️
+                    ${escapeHTML(
+                        student.email
+                    )}
 
-                    </button>
-
-                </div>
-
-            </td>
-
-        `;
+                </td>
 
 
-        studentTable.appendChild(row);
+                <td>
 
-    });
+                    ${escapeHTML(
+                        student.phone || "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            class="action-btn"
+                            onclick="editStudent('${student.id}')"
+                            title="Edit"
+                        >
+                            ✏️
+                        </button>
+
+
+                        <button
+                            class="action-btn delete-btn"
+                            onclick="deleteStudent('${student.id}')"
+                            title="Delete"
+                        >
+                            🗑️
+                        </button>
+
+                    </div>
+
+                </td>
+
+            `;
+
+
+            studentTable.appendChild(
+                row
+            );
+
+        }
+    );
 
 }
 
@@ -580,7 +653,8 @@ function displayStudents() {
 
 function openAddModal() {
 
-    editingStudentId = null;
+    editingStudentId =
+        null;
 
 
     modalTitle.textContent =
@@ -633,6 +707,10 @@ async function addStudent(event) {
     event.preventDefault();
 
 
+    /* =====================================
+       GET FORM DATA
+    ===================================== */
+
     const name =
         nameInput.value.trim();
 
@@ -662,17 +740,19 @@ async function addStudent(event) {
     ===================================== */
 
     const duplicate =
-        students.some(student =>
+        students.some(
+            student =>
 
-            String(student.rollNumber)
-                .toLowerCase() ===
-            rollNumber.toLowerCase()
+                String(
+                    student.rollNumber
+                )
+                    .toLowerCase() ===
+                rollNumber.toLowerCase()
 
-            &&
+                &&
 
-            student.id !==
-            editingStudentId
-
+                student.id !==
+                editingStudentId
         );
 
 
@@ -692,7 +772,7 @@ async function addStudent(event) {
 
 
     /* =====================================
-       STUDENT DATA
+       CREATE DATA OBJECT
     ===================================== */
 
     const studentData = {
@@ -741,16 +821,15 @@ async function addStudent(event) {
 
 
             alert(
-                "Student updated successfully."
+                "Student updated successfully!"
             );
-
 
         }
 
         catch (error) {
 
             console.error(
-                "Error updating student:",
+                "Update error:",
                 error
             );
 
@@ -775,14 +854,26 @@ async function addStudent(event) {
 
         try {
 
-            await addDoc(
-                studentsCollection,
-                studentData
+            console.log(
+                "Saving student to Firebase..."
+            );
+
+
+            const documentReference =
+                await addDoc(
+                    studentsCollection,
+                    studentData
+                );
+
+
+            console.log(
+                "Student saved with ID:",
+                documentReference.id
             );
 
 
             alert(
-                "Student added successfully."
+                "Student added successfully!"
             );
 
         }
@@ -790,13 +881,14 @@ async function addStudent(event) {
         catch (error) {
 
             console.error(
-                "Error adding student:",
+                "Firebase add error:",
                 error
             );
 
 
             alert(
-                "Failed to add student."
+                "Failed to save student to Firebase.\n\n" +
+                error.message
             );
 
 
@@ -938,7 +1030,7 @@ async function deleteStudent(id) {
 
 
         alert(
-            "Student deleted successfully."
+            "Student deleted successfully!"
         );
 
 
@@ -949,7 +1041,7 @@ async function deleteStudent(id) {
     catch (error) {
 
         console.error(
-            "Error deleting student:",
+            "Delete error:",
             error
         );
 
@@ -964,7 +1056,7 @@ async function deleteStudent(id) {
 
 
 /* =========================================
-   MAKE FUNCTIONS AVAILABLE GLOBALLY
+   MAKE FUNCTIONS GLOBAL
 ========================================= */
 
 window.editStudent =
@@ -996,7 +1088,7 @@ courseFilter.addEventListener(
 
 
 /* =========================================
-   OPEN ADD BUTTON
+   ADD BUTTON
 ========================================= */
 
 addStudentButton.addEventListener(
@@ -1038,7 +1130,7 @@ cancelButton.addEventListener(
 
 
 /* =========================================
-   CLOSE WHEN CLICKING OUTSIDE MODAL
+   CLICK OUTSIDE MODAL
 ========================================= */
 
 modalBackground.addEventListener(
@@ -1067,8 +1159,13 @@ document.addEventListener(
     function(event) {
 
         if (
+
             event.key === "Escape" &&
-            modalBackground.classList.contains("show")
+
+            modalBackground.classList.contains(
+                "show"
+            )
+
         ) {
 
             closeStudentModal();

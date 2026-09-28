@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Management System</title>
+
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- ================= SIDEBAR ================= -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-logo">C</div>
+
+                <div>
+                    <h2>CampusDesk</h2>
+                    <small>WORKSPACE</small>
+                </div>
+            </div>
+
+
+            <div class="admin-box">
+
+                <div class="admin-avatar">
+                    AD
+                </div>
+
+                <div class="admin-info">
+                    <strong>Admin User</strong>
+                    <span>College administrator</span>
+                </div>
+
+            </div>
+
+
+            <nav>
+
+                <p class="nav-title">
+                    DIRECTORY
+                </p>
+
+                <a href="#" class="nav-item active">
+                    <span>👤</span>
+                    Students
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+                Student Management System
+            </div>
+
+        </aside>
+
+
+        <!-- ================= MAIN ================= -->
+
+        <main class="main">
+
+            <!-- HEADER -->
+
+            <header class="header">
+
+                <div>
+
+                    <p class="small-title">
+                        DIRECTORY
+                    </p>
+
+                    <h1>Students</h1>
+
+                    <p class="description">
+                        Manage student records and keep your campus organized.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    id="addStudentButton"
+                >
+                    + Add Student
+                </button>
+
+            </header>
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <section class="stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                    <div>
+                        <p>Total Students</p>
+
+                        <h2 id="totalStudents">
+                            0
+                        </h2>
+
+                        <span>
+                            Across all courses
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📚
+                    </div>
+
+                    <div>
+                        <p>Courses</p>
+
+                        <h2 id="totalCourses">
+                            0
+                        </h2>
+
+                        <span>
+                            Active programs
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🔎
+                    </div>
+
+                    <div>
+                        <p>Filtered Results</p>
+
+                        <h2 id="filteredStudents">
+                            0
+                        </h2>
+
+                        <span>
+                            Matching your search
+                        </span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= DIRECTORY ================= -->
+
+            <section class="directory">
+
+                <div class="directory-header">
+
+                    <div>
+                        <h2>
+                            Student Directory
+                        </h2>
+
+                        <p>
+                            Browse and manage all enrolled students.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- SEARCH -->
+
+                <div class="toolbar">
+
+                    <div class="search-container">
+
+                        <span>🔍</span>
+
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Search students..."
+                        >
+
+                    </div>
+
+
+                    <select id="courseFilter">
+
+                        <option value="">
+                            All Courses
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TABLE -->
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    STUDENT
+                                </th>
+
+                                <th>
+                                    ROLL NUMBER
+                                </th>
+
+                                <th>
+                                    COURSE
+                                </th>
+
+                                <th>
+                                    YEAR
+                                </th>
+
+                                <th>
+                                    EMAIL
+                                </th>
+
+                                <th>
+                                    PHONE
+                                </th>
+
+                                <th>
+                                    ACTIONS
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="studentTable">
+
+                        </tbody>
+
+                    </table>
+
+
+                    <!-- EMPTY MESSAGE -->
+
+                    <div
+                        class="empty"
+                        id="emptyMessage"
+                    >
+
+                        <div class="empty-icon">
+                            👤
+                        </div>
+
+                        <h3>
+                            No students found
+                        </h3>
+
+                        <p>
+                            Add a student or change your search.
+                        </p>
+
+                        <button
+                            class="btn btn-secondary"
+                            id="emptyAddButton"
+                        >
+                            Add Student
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-footer">
+
+                    <span id="showingText">
+                        Showing 0 students
+                    </span>
+
+                    <span class="saved">
+                        ● Data saved locally
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <footer>
+                CampusDesk Student Management System
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <!-- ================= MODAL ================= -->
+
+    <div
+        class="modal-background"
+        id="modalBackground"
+    >
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="small-title">
+                        STUDENT RECORD
+                    </p>
+
+                    <h2 id="modalTitle">
+                        Add Student
+                    </h2>
+
+                    <p>
+                        Enter student information below.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="close-button"
+                    id="closeModal"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form id="studentForm">
+
+                <input
+                    type="hidden"
+                    id="studentId"
+                >
+
+
+                <div class="form-grid">
+
+                    <!-- NAME -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Full Name
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Enter full name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- ROLL NUMBER -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Roll Number
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="rollNumber"
+                            placeholder="Enter roll number"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Email
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="student@example.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- COURSE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Course
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="course"
+                            placeholder="e.g. Information Technology"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- YEAR -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Year
+                            <span>*</span>
+                        </label>
+
+                        <select id="year" required>
+
+                            <option value="">
+                                Select Year
+                            </option>
+
+                            <option value="1st Year">
+                                1st Year
+                            </option>
+
+                            <option value="2nd Year">
+                                2nd Year
+                            </option>
+
+                            <option value="3rd Year">
+                                3rd Year
+                            </option>
+
+                            <option value="4th Year">
+                                4th Year
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- PHONE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Phone
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            placeholder="Enter phone number"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- FORM BUTTONS -->
+
+                <div class="form-buttons">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="cancelButton"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Save Student
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="index.js"></script>
+
+</body>
+</html>

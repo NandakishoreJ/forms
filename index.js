@@ -1,13 +1,80 @@
 /* =========================================
    STUDENT MANAGEMENT SYSTEM
+   FIREBASE FIRESTORE VERSION
 ========================================= */
 
 
 /* =========================================
-   STORAGE
+   FIREBASE IMPORTS
 ========================================= */
 
-const STORAGE_KEY = "studentManagementData";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    doc
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+/* =========================================
+   FIREBASE CONFIGURATION
+========================================= */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyBJWC6xuN4WSDrXGfkXiRnLsvECLCYS2jU",
+
+    authDomain:
+        "student-form-9511e.firebaseapp.com",
+
+    projectId:
+        "student-form-9511e",
+
+    storageBucket:
+        "student-form-9511e.firebasestorage.app",
+
+    messagingSenderId:
+        "146858051954",
+
+    appId:
+        "1:146858051954:web:9a3365f82a0b703529b5eb",
+
+    measurementId:
+        "G-X8XBK4QF02"
+
+};
+
+
+/* =========================================
+   INITIALIZE FIREBASE
+========================================= */
+
+const app =
+    initializeApp(firebaseConfig);
+
+
+/* =========================================
+   INITIALIZE FIRESTORE
+========================================= */
+
+const db =
+    getFirestore(app);
+
+
+/* =========================================
+   FIRESTORE COLLECTION
+========================================= */
+
+const studentsCollection =
+    collection(db, "students");
 
 
 /* =========================================
@@ -96,65 +163,54 @@ let editingStudentId = null;
 
 
 /* =========================================
-   LOAD DATA
+   LOAD STUDENTS FROM FIREBASE
 ========================================= */
 
-function loadStudents() {
+async function loadStudents() {
 
-    const savedData =
-        localStorage.getItem(STORAGE_KEY);
+    try {
 
-    if (savedData) {
-
-        try {
-
-            students =
-                JSON.parse(savedData);
-
-        } catch (error) {
-
-            console.error(
-                "Error loading student data:",
-                error
-            );
-
-            students = [];
-
-        }
-
-    } else {
+        const snapshot =
+            await getDocs(studentsCollection);
 
         students = [];
 
+        snapshot.forEach((documentSnapshot) => {
+
+            students.push({
+
+                id:
+                    documentSnapshot.id,
+
+                ...documentSnapshot.data()
+
+            });
+
+        });
+
+
+        console.log(
+            "Students loaded from Firebase:",
+            students
+        );
+
+
+        displayStudents();
+
     }
 
-}
+    catch (error) {
 
+        console.error(
+            "Error loading students:",
+            error
+        );
 
-/* =========================================
-   SAVE DATA
-========================================= */
+        alert(
+            "Unable to load student data from Firebase."
+        );
 
-function saveStudents() {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(students)
-    );
-
-}
-
-
-/* =========================================
-   CREATE UNIQUE ID
-========================================= */
-
-function createId() {
-
-    return Date.now().toString() +
-        Math.random()
-            .toString(36)
-            .substring(2, 9);
+    }
 
 }
 
@@ -168,6 +224,7 @@ function getInitials(name) {
     const words =
         name.trim().split(" ");
 
+
     if (words.length === 1) {
 
         return words[0]
@@ -175,6 +232,7 @@ function getInitials(name) {
             .toUpperCase();
 
     }
+
 
     return (
         words[0][0] +
@@ -209,13 +267,19 @@ function updateCourseFilter() {
     const selectedCourse =
         courseFilter.value;
 
+
     const courses = [
+
         ...new Set(
+
             students
                 .map(student => student.course)
                 .filter(course => course)
+
         )
+
     ].sort();
+
 
     courseFilter.innerHTML =
         `<option value="">All Courses</option>`;
@@ -226,9 +290,14 @@ function updateCourseFilter() {
         const option =
             document.createElement("option");
 
-        option.value = course;
 
-        option.textContent = course;
+        option.value =
+            course;
+
+
+        option.textContent =
+            course;
+
 
         courseFilter.appendChild(option);
 
@@ -256,43 +325,49 @@ function getFilteredStudents() {
             .trim()
             .toLowerCase();
 
+
     const selectedCourse =
         courseFilter.value;
 
 
     return students.filter(student => {
 
+
         const matchesSearch =
+
             search === "" ||
 
-            student.name
+            String(student.name || "")
                 .toLowerCase()
                 .includes(search) ||
 
-            student.rollNumber
+            String(student.rollNumber || "")
                 .toLowerCase()
                 .includes(search) ||
 
-            student.email
+            String(student.email || "")
                 .toLowerCase()
                 .includes(search) ||
 
-            student.course
+            String(student.course || "")
                 .toLowerCase()
                 .includes(search) ||
 
-            student.year
+            String(student.year || "")
                 .toLowerCase()
                 .includes(search) ||
 
-            student.phone
+            String(student.phone || "")
                 .toLowerCase()
                 .includes(search);
 
 
         const matchesCourse =
+
             selectedCourse === "" ||
-            student.course === selectedCourse;
+
+            student.course ===
+            selectedCourse;
 
 
         return (
@@ -321,7 +396,9 @@ function displayStudents() {
     studentTable.innerHTML = "";
 
 
-    /* UPDATE STATISTICS */
+    /* =====================================
+       UPDATE STATISTICS
+    ===================================== */
 
     totalStudents.textContent =
         students.length;
@@ -329,9 +406,9 @@ function displayStudents() {
 
     const courses =
         new Set(
-            students.map(
-                student => student.course
-            )
+            students
+                .map(student => student.course)
+                .filter(course => course)
         );
 
 
@@ -344,17 +421,25 @@ function displayStudents() {
 
 
     showingText.textContent =
-        `Showing ${filtered.length} student${filtered.length === 1 ? "" : "s"}`;
+        `Showing ${filtered.length} student${
+            filtered.length === 1
+                ? ""
+                : "s"
+        }`;
 
 
-    /* EMPTY STATE */
+    /* =====================================
+       EMPTY STATE
+    ===================================== */
 
     if (filtered.length === 0) {
 
         emptyMessage.style.display =
             "block";
 
-    } else {
+    }
+
+    else {
 
         emptyMessage.style.display =
             "none";
@@ -362,7 +447,9 @@ function displayStudents() {
     }
 
 
-    /* CREATE TABLE ROWS */
+    /* =====================================
+       CREATE TABLE ROWS
+    ===================================== */
 
     filtered.forEach(student => {
 
@@ -379,7 +466,9 @@ function displayStudents() {
                     <div class="student-avatar">
 
                         ${escapeHTML(
-                            getInitials(student.name)
+                            getInitials(
+                                student.name
+                            )
                         )}
 
                     </div>
@@ -398,9 +487,11 @@ function displayStudents() {
 
 
             <td>
+
                 ${escapeHTML(
                     student.rollNumber
                 )}
+
             </td>
 
 
@@ -418,23 +509,29 @@ function displayStudents() {
 
 
             <td>
+
                 ${escapeHTML(
                     student.year
                 )}
+
             </td>
 
 
             <td>
+
                 ${escapeHTML(
                     student.email
                 )}
+
             </td>
 
 
             <td>
+
                 ${escapeHTML(
                     student.phone || "-"
                 )}
+
             </td>
 
 
@@ -447,7 +544,9 @@ function displayStudents() {
                         onclick="editStudent('${student.id}')"
                         title="Edit"
                     >
+
                         ✏️
+
                     </button>
 
 
@@ -456,7 +555,9 @@ function displayStudents() {
                         onclick="deleteStudent('${student.id}')"
                         title="Delete"
                     >
+
                         🗑️
+
                     </button>
 
                 </div>
@@ -481,13 +582,16 @@ function openAddModal() {
 
     editingStudentId = null;
 
+
     modalTitle.textContent =
         "Add Student";
 
 
     studentForm.reset();
 
-    studentIdInput.value = "";
+
+    studentIdInput.value =
+        "";
 
 
     modalBackground.classList.add(
@@ -510,18 +614,21 @@ function closeStudentModal() {
         "show"
     );
 
+
     studentForm.reset();
 
-    editingStudentId = null;
+
+    editingStudentId =
+        null;
 
 }
 
 
 /* =========================================
-   ADD STUDENT
+   ADD / UPDATE STUDENT
 ========================================= */
 
-function addStudent(event) {
+async function addStudent(event) {
 
     event.preventDefault();
 
@@ -529,28 +636,35 @@ function addStudent(event) {
     const name =
         nameInput.value.trim();
 
+
     const rollNumber =
         rollNumberInput.value.trim();
+
 
     const email =
         emailInput.value.trim();
 
+
     const course =
         courseInput.value.trim();
 
+
     const year =
         yearInput.value;
+
 
     const phone =
         phoneInput.value.trim();
 
 
-    /* CHECK ROLL NUMBER */
+    /* =====================================
+       CHECK DUPLICATE ROLL NUMBER
+    ===================================== */
 
     const duplicate =
         students.some(student =>
 
-            student.rollNumber
+            String(student.rollNumber)
                 .toLowerCase() ===
             rollNumber.toLowerCase()
 
@@ -568,20 +682,20 @@ function addStudent(event) {
             "A student with this roll number already exists."
         );
 
+
         rollNumberInput.focus();
+
 
         return;
 
     }
 
 
-    /* CREATE STUDENT OBJECT */
+    /* =====================================
+       STUDENT DATA
+    ===================================== */
 
-    const student = {
-
-        id:
-            editingStudentId ||
-            createId(),
+    const studentData = {
 
         name:
             name,
@@ -604,58 +718,105 @@ function addStudent(event) {
     };
 
 
-    /* EDIT */
+    /* =====================================
+       UPDATE EXISTING STUDENT
+    ===================================== */
 
     if (editingStudentId) {
 
-        const index =
-            students.findIndex(
-                student =>
-                    student.id ===
+        try {
+
+            const studentReference =
+                doc(
+                    db,
+                    "students",
                     editingStudentId
+                );
+
+
+            await updateDoc(
+                studentReference,
+                studentData
             );
 
 
-        if (index !== -1) {
+            alert(
+                "Student updated successfully."
+            );
 
-            students[index] =
-                student;
 
         }
 
+        catch (error) {
 
-        alert(
-            "Student updated successfully."
-        );
+            console.error(
+                "Error updating student:",
+                error
+            );
+
+
+            alert(
+                "Failed to update student."
+            );
+
+
+            return;
+
+        }
 
     }
 
 
-    /* ADD */
+    /* =====================================
+       ADD NEW STUDENT
+    ===================================== */
 
     else {
 
-        students.push(student);
+        try {
+
+            await addDoc(
+                studentsCollection,
+                studentData
+            );
 
 
-        alert(
-            "Student added successfully."
-        );
+            alert(
+                "Student added successfully."
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Error adding student:",
+                error
+            );
+
+
+            alert(
+                "Failed to add student."
+            );
+
+
+            return;
+
+        }
 
     }
 
 
-    /* SAVE */
+    /* =====================================
+       RELOAD DATA
+    ===================================== */
 
-    saveStudents();
-
-
-    /* REFRESH */
-
-    displayStudents();
+    await loadStudents();
 
 
-    /* CLOSE */
+    /* =====================================
+       CLOSE MODAL
+    ===================================== */
 
     closeStudentModal();
 
@@ -695,27 +856,27 @@ function editStudent(id) {
 
 
     nameInput.value =
-        student.name;
+        student.name || "";
 
 
     rollNumberInput.value =
-        student.rollNumber;
+        student.rollNumber || "";
 
 
     emailInput.value =
-        student.email;
+        student.email || "";
 
 
     courseInput.value =
-        student.course;
+        student.course || "";
 
 
     yearInput.value =
-        student.year;
+        student.year || "";
 
 
     phoneInput.value =
-        student.phone;
+        student.phone || "";
 
 
     modalBackground.classList.add(
@@ -732,7 +893,7 @@ function editStudent(id) {
    DELETE STUDENT
 ========================================= */
 
-function deleteStudent(id) {
+async function deleteStudent(id) {
 
     const student =
         students.find(
@@ -761,24 +922,57 @@ function deleteStudent(id) {
     }
 
 
-    students =
-        students.filter(
-            student =>
-                student.id !== id
+    try {
+
+        const studentReference =
+            doc(
+                db,
+                "students",
+                id
+            );
+
+
+        await deleteDoc(
+            studentReference
         );
 
 
-    saveStudents();
+        alert(
+            "Student deleted successfully."
+        );
 
 
-    displayStudents();
+        await loadStudents();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error deleting student:",
+            error
+        );
 
 
-    alert(
-        "Student deleted successfully."
-    );
+        alert(
+            "Failed to delete student."
+        );
+
+    }
 
 }
+
+
+/* =========================================
+   MAKE FUNCTIONS AVAILABLE GLOBALLY
+========================================= */
+
+window.editStudent =
+    editStudent;
+
+
+window.deleteStudent =
+    deleteStudent;
 
 
 /* =========================================
@@ -890,5 +1084,3 @@ document.addEventListener(
 ========================================= */
 
 loadStudents();
-
-displayStudents();
